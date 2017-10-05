@@ -7,4 +7,5 @@ config/config.lua
 tarantool.log
 packpack
 old-tarantool-auth.spec
+authman-scm-1.src.rock
 build
