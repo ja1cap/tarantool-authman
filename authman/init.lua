@@ -22,14 +22,23 @@ function auth.api(config)
     -----------------
     -- API methods --
     -----------------
-    function api.registration(email, user_id)
-        email = utils.lower(email)
+    function api.registration(external_identity, user_id)
+        external_identity = utils.lower(external_identity)
 
-        if not validator.email(email) then
+        local email = ''
+        local phone = 0
+
+        local user_tuple
+        if validator.email(external_identity) then
+            email = external_identity
+            user_tuple = user.get_by_email(email, user.COMMON_TYPE)
+        elseif validator.phone(external_identity) then
+            phone = external_identity
+            user_tuple = user.get_by_phone(phone, user.COMMON_TYPE)
+        else
             return response.error(error.INVALID_PARAMS)
         end
 
-        local user_tuple = user.get_by_email(email, user.COMMON_TYPE)
         if user_tuple ~= nil then
             if user_tuple[user.IS_ACTIVE] and user_tuple[user.TYPE] == user.COMMON_TYPE then
                 return response.error(error.USER_ALREADY_EXISTS)
@@ -41,6 +50,7 @@ function auth.api(config)
 
         user_tuple = {
             [user.EMAIL] = email,
+            [user.PHONE] = phone,
             [user.TYPE] = user.COMMON_TYPE,
             [user.IS_ACTIVE] = false,
         }
@@ -54,10 +64,12 @@ function auth.api(config)
         return response.ok(user.serialize(user_tuple, {code=code}))
     end
 
-    function api.complete_registration(email, code, raw_password)
-        email = utils.lower(email)
+    function api.complete_registration(external_identity, code, raw_password)
+        external_identity = utils.lower(external_identity)
 
-        if not (validator.email(email) and validator.not_empty_string(code)) then
+        local is_email = validator.email(external_identity)
+        local is_phone = validator.phone(external_identity)
+        if not ((is_email or is_phone) and validator.not_empty_string(code)) then
             return response.error(error.INVALID_PARAMS)
         end
 
@@ -65,7 +77,15 @@ function auth.api(config)
             return response.error(error.WEAK_PASSWORD)
         end
 
-        local user_tuple = user.get_by_email(email, user.COMMON_TYPE)
+        local user_tuple
+        if is_email then
+            user_tuple = user.get_by_email(external_identity, user.COMMON_TYPE)
+        elseif is_phone then
+            user_tuple = user.get_by_phone(external_identity, user.COMMON_TYPE)
+        else
+            return response.error(error.INVALID_PARAMS)
+        end
+
         if user_tuple == nil then
             return response.error(error.USER_NOT_FOUND)
         end
@@ -150,10 +170,18 @@ function auth.api(config)
         return response.ok(user.serialize(user_tuple))
     end
 
-    function api.auth(email, raw_password)
-        email = utils.lower(email)
+    function api.auth(external_identity, raw_password)
+        external_identity = utils.lower(external_identity)
 
-        local user_tuple = user.get_by_email(email, user.COMMON_TYPE)
+        local user_tuple
+        if validator.email(external_identity) then
+            user_tuple = user.get_by_email(external_identity, user.COMMON_TYPE)
+        elseif validator.phone(external_identity) then
+            user_tuple = user.get_by_phone(external_identity, user.COMMON_TYPE)
+        else
+            return response.error(error.INVALID_PARAMS)
+        end
+
         if user_tuple == nil then
             return response.error(error.USER_NOT_FOUND)
         end
@@ -273,10 +301,17 @@ function auth.api(config)
         return response.ok(deleted)
     end
 
-    function api.restore_password(email)
-        email = utils.lower(email)
+    function api.restore_password(external_identity)
+        external_identity = utils.lower(external_identity)
 
-        local user_tuple = user.get_by_email(email, user.COMMON_TYPE)
+        local user_tuple
+        if validator.email(external_identity) then
+            user_tuple = user.get_by_email(external_identity, user.COMMON_TYPE)
+        elseif validator.phone(external_identity) then
+            user_tuple = user.get_by_phone(external_identity, user.COMMON_TYPE)
+        else
+            return response.error(error.INVALID_PARAMS)
+        end
 
         if user_tuple == nil then
             return response.error(error.USER_NOT_FOUND)
@@ -288,14 +323,21 @@ function auth.api(config)
         return response.ok(password_token.generate(user_tuple[user.ID]))
     end
 
-    function api.complete_restore_password(email, token, raw_password)
-        email = utils.lower(email)
+    function api.complete_restore_password(external_identity, token, raw_password)
+        external_identity = utils.lower(external_identity)
 
         if not validator.not_empty_string(token) then
             return response.error(error.INVALID_PARAMS)
         end
 
-        local user_tuple = user.get_by_email(email, user.COMMON_TYPE)
+        local user_tuple
+        if validator.email(external_identity) then
+            user_tuple = user.get_by_email(external_identity, user.COMMON_TYPE)
+        elseif validator.phone(external_identity) then
+            user_tuple = user.get_by_phone(external_identity, user.COMMON_TYPE)
+        else
+            return response.error(error.INVALID_PARAMS)
+        end
 
         if user_tuple == nil then
             return response.error(error.USER_NOT_FOUND)

@@ -1,12 +1,12 @@
 package = 'authman'
 version = 'scm-1'
 source  = {
-    url    = 'git://github.com/mailru/tarantool-authman.git',
+    url    = 'git://github.com/ja1cap/tarantool-authman.git',
     branch = 'master',
 }
 description = {
     summary  = 'Auth module for Tarantool',
-    homepage = 'https://github.com/mailru/tarantool-authman.git',
+    homepage = 'https://github.com/ja1cap/tarantool-authman.git',
     license  = 'MIT',
 }
 dependencies = {

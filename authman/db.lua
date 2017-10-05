@@ -25,6 +25,12 @@ function db.configurate(config)
             parts = {user.EMAIL, 'string', user.TYPE, 'unsigned'},
             if_not_exists = true
         })
+        user_space:create_index(user.PHONE_INDEX, {
+            type = 'tree',
+            unique = false,
+            parts = {user.PHONE, 'unsigned', user.TYPE, 'unsigned'},
+            if_not_exists = true
+        })
 
         local password_space = box.schema.space.create(password.SPACE_NAME, {
             if_not_exists = true

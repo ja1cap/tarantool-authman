@@ -56,6 +56,10 @@ function validator.email(email_string)
     return validator.not_empty_string(email_string) and email_string:match('([^@]+@[^@]+)') == email_string
 end
 
+function validator.phone(phone)
+    return validator.positive_number(phone)
+end
+
 function validator.provider(provider)
     return enabled_providers[provider]
 end
