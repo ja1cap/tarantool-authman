@@ -28,10 +28,12 @@ function user.model(config)
     model.BIRTH_YEAR = 10
     model.BIRTH_MONTH = 11
     model.BIRTH_DAY = 12
-    model.COUNTRY_NAME = 13
-    model.COUNTRY_ISO_CODE = 14
-    model.CITY_NAME = 15
-    model.CITY_GEONAME_ID = 16
+    model.GEO_COUNTRY_NAME = 13
+    model.GEO_COUNTRY_ISO_CODE = 14
+    model.GEO_CITY_NAME = 15
+    model.GEO_CITY_GEONAME_ID = 16
+    model.GEO_COORDS = 17
+    model.GEO_COORDS_CUBE = 18
 
     model.PROFILE_FIRST_NAME = 'first_name'
     model.PROFILE_LAST_NAME = 'last_name'
@@ -59,10 +61,14 @@ function user.model(config)
             birth_year = user_tuple[model.BIRTH_YEAR],
             birth_month = user_tuple[model.BIRTH_MONTH],
             birth_day = user_tuple[model.BIRTH_DAY],
-            country_name = user_tuple[model.COUNTRY_NAME],
-            country_iso_code = user_tuple[model.COUNTRY_ISO_CODE],
-            city_name = user_tuple[model.CITY_NAME],
-            city_geoname_id = user_tuple[model.CITY_GEONAME_ID],
+            geo = {
+                country_name = user_tuple[model.GEO_COUNTRY_NAME],
+                country_iso_code = user_tuple[model.GEO_COUNTRY_ISO_CODE],
+                city_name = user_tuple[model.GEO_CITY_NAME],
+                city_geoname_id = user_tuple[model.GEO_CITY_GEONAME_ID],
+                coords = user_tuple[model.GEO_COORDS],
+                coords_cube = user_tuple[model.GEO_COORDS_CUBE],
+            },
         }
         if data ~= nil then
             for k,v in pairs(data) do
@@ -134,10 +140,12 @@ function user.model(config)
             user_tuple[model.BIRTH_YEAR] or 0,
             user_tuple[model.BIRTH_MONTH] or 0,
             user_tuple[model.BIRTH_DAY] or 0,
-            user_tuple[model.COUNTRY_NAME] or '',
-            user_tuple[model.COUNTRY_ISO_CODE] or '',
-            user_tuple[model.CITY_NAME] or '',
-            user_tuple[model.CITY_GEONAME_ID] or 0,
+            user_tuple[model.GEO_COUNTRY_NAME] or '',
+            user_tuple[model.GEO_COUNTRY_ISO_CODE] or '',
+            user_tuple[model.GEO_CITY_NAME] or '',
+            user_tuple[model.GEO_CITY_GEONAME_ID] or 0,
+            user_tuple[model.GEO_COORDS] or {},
+            user_tuple[model.GEO_COORDS_CUBE] or {},
         }
     end
 
