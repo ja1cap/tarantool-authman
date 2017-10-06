@@ -15,6 +15,7 @@ function user.model(config)
     model.PRIMARY_INDEX = 'primary'
     model.EMAIL_INDEX = 'email_index'
     model.PHONE_INDEX = 'phone_index'
+    model.GEO_INDEX = 'geo_index'
 
     model.ID = 1
     model.EMAIL = 2
