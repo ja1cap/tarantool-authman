@@ -43,6 +43,7 @@ function utils.lower(string)
     if validator.string(string) then
         return string:lower()
     end
+    return string
 end
 
 return utils

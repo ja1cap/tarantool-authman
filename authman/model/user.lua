@@ -146,7 +146,7 @@ function user.model(config)
             user_tuple[model.GEO_CITY_NAME] or '',
             user_tuple[model.GEO_CITY_GEONAME_ID] or 0,
             user_tuple[model.GEO_COORDS] or {},
-            user_tuple[model.GEO_COORDS_CUBE] or {},
+            user_tuple[model.GEO_COORDS_CUBE] or { 0, 0, 0 },
         }
     end
 
