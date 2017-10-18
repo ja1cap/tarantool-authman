@@ -4,7 +4,7 @@ local error = require('authman.error')
 local validator = require('authman.validator')
 local db = require('authman.db')
 local utils = require('authman.utils.utils')
-
+local fun = require('fun')
 
 function auth.api(config)
     local api = {}
@@ -15,6 +15,7 @@ function auth.api(config)
     local password_token = require('authman.model.password_token').model(config)
     local social = require('authman.model.social').model(config)
     local session = require('authman.model.session').model(config)
+    local socket = require('authman.model.socket').model(config)
 
     db.configurate(config).create_database()
     require('authman.migrations.migrations')(config)
@@ -432,6 +433,43 @@ function auth.api(config)
             session = new_session,
             social = social.serialize(social_tuple),
         }))
+    end
+
+    function api.socket_connect(socket_id, user_id, creation_ts)
+      if not validator.not_empty_string(socket_id) or not validator.not_empty_string(user_id) then
+          return response.error(error.INVALID_PARAMS)
+      end
+
+      local user_tuple = user.get_by_id(user_id)
+      if user_tuple == nil then
+          return response.error(error.USER_NOT_FOUND)
+      end
+
+      local socket_tuple = socket.create(socket_id, user_id, creation_ts)
+      return response.ok(socket.serialize(socket_tuple))
+    end
+
+    function api.socket_disconnect(socket_id)
+      if not validator.not_empty_string(socket_id) then
+          return response.error(error.INVALID_PARAMS)
+      end
+
+      local socket_tuple = socket.get_by_id(socket_id)
+      if socket_tuple == nil then
+          return response.error(error.SOCKET_NOT_FOUND)
+      end
+      socket.delete(socket_id)
+
+      return response.ok(socket.serialize(socket_tuple))
+    end
+
+    function api.sockets(user_id)
+      if not validator.not_empty_string(user_id) then
+          return response.error(error.INVALID_PARAMS)
+      end
+
+      local socket_tuples = socket.get_by_user_id(user_id)
+      return response.ok(fun.map(socket.serialize, fun.iter(socket_tuples)):totable())
     end
 
     return api

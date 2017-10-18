@@ -15,6 +15,7 @@ error.IMPROPERLY_CONFIGURED = '12'
 error.WRONG_PROVIDER = '13'
 error.WEAK_PASSWORD = '14'
 error.SOCIAL_AUTH_ERROR = '15'
+error.SOCKET_NOT_FOUND = '16'
 
 error.CODES = {
     [error.USER_NOT_FOUND] = 'User not found',
@@ -32,6 +33,7 @@ error.CODES = {
     [error.WRONG_PROVIDER] = 'Wrong social provider',
     [error.WEAK_PASSWORD] = 'Password to weak',
     [error.SOCIAL_AUTH_ERROR] = 'Error during getting user info'
+    [error.SOCKET_NOT_FOUND] = 'Socket not found'
 }
 
 return error

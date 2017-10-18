@@ -75,6 +75,7 @@ function user.model(config)
             birth_year = user_tuple[model.BIRTH_YEAR],
             birth_month = user_tuple[model.BIRTH_MONTH],
             birth_day = user_tuple[model.BIRTH_DAY],
+            registraction_ts = user_tuple[model.REGISTRATION_TS],
             geo = {
                 current = {
                     coords = user_tuple[model.CURRENT_COORDS],

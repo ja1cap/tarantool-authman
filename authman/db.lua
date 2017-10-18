@@ -9,6 +9,7 @@ function db.configurate(config)
     local password_token = require('authman.model.password_token').model(config)
     local social = require('authman.model.social').model(config)
     local session = require('authman.model.session').model(config)
+    local socket = require('authman.model.socket').model(config)
 
     function api.create_database()
         local user_space = box.schema.space.create(user.SPACE_NAME, {
@@ -92,6 +93,21 @@ function db.configurate(config)
             parts = {session.ID, 'string'},
             if_not_exists = true
         })
+
+        local socket_space = box.schema.space.create(socket.SPACE_NAME, {
+            if_not_exists = true
+        })
+        socket_space:create_index(socket.PRIMARY_INDEX, {
+            type = 'hash',
+            parts = {socket.ID, 'string'},
+            if_not_exists = true
+        })
+        socket_space:create_index(socket.USER_ID_INDEX, {
+            type = 'tree',
+            unique = true,
+            parts = {social.USER_ID, 'string'},
+            if_not_exists = true
+        })
     end
 
     function api.truncate_spaces()
@@ -100,6 +116,7 @@ function db.configurate(config)
         password.get_space():truncate()
         social.get_space():truncate()
         session.get_space():truncate()
+        socket_space.get_space():truncate()
     end
 
     return api

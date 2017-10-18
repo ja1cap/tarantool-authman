@@ -41,6 +41,7 @@ local config_default_space_names = {
     password_token = 'auth_password_token',
     session = 'auth_sesssion',
     social = 'auth_social_credential',
+    socket = 'auth_socket',
     user = 'auth_user',
 }
 
@@ -140,6 +141,3 @@ function validator.config(config)
 end
 
 return validator
-
-
-
