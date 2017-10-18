@@ -66,17 +66,19 @@ function user.model(config)
 
     function model.serialize(user_tuple, data)
 
+        local user_profile = user_tuple[model.PROFILE]
+        user_profile.gender = user_tuple[model.GENDER]
+        user_profile.birth_year = user_tuple[model.BIRTH_YEAR]
+        user_profile.birth_month = user_tuple[model.BIRTH_MONTH]
+        user_profile.birth_day = user_tuple[model.BIRTH_DAY]
+
         local user_data = {
             id = user_tuple[model.ID],
             email = user_tuple[model.EMAIL],
             phone = user_tuple[model.PHONE],
             is_active = user_tuple[model.IS_ACTIVE],
-            profile = user_tuple[model.PROFILE],
-            gender = user_tuple[model.GENDER],
-            birth_year = user_tuple[model.BIRTH_YEAR],
-            birth_month = user_tuple[model.BIRTH_MONTH],
-            birth_day = user_tuple[model.BIRTH_DAY],
             registraction_ts = user_tuple[model.REGISTRATION_TS],
+            profile = user_profile,
             geo = {
                 current = {
                     ts = user_tuple[model.CURRENT_COORDS_TS],

@@ -130,11 +130,15 @@ function auth.api(config)
         end
 
         user_tuple = user.update({
-            [user.ID] = user_id,
-            [user.PROFILE] = {
-                [user.PROFILE_FIRST_NAME] = user_profile['first_name'],
-                [user.PROFILE_LAST_NAME] = user_profile['last_name'],
-            },
+          [user.ID] = user_id,
+          [user.GENDER] = user_profile.gender or user_tuple[user.GENDER],
+          [user.BIRTH_YEAR] = user_profile.birth_year or user_tuple[user.BIRTH_YEAR],
+          [user.BIRTH_MONTH] = user_profile.birth_month or user_tuple[user.BIRTH_MONTH],
+          [user.BIRTH_DAY] = user_profile.birth_day or user_tuple[user.BIRTH_DAY],
+          [user.PROFILE] = {
+            [user.PROFILE_FIRST_NAME] = user_profile.first_name or user_tuple[user.PROFILE_FIRST_NAME],
+            [user.PROFILE_LAST_NAME] = user_profile.last_name or user_tuple[user.PROFILE_LAST_NAME],
+          },
         })
 
         return response.ok(user.serialize(user_tuple))
@@ -171,7 +175,34 @@ function auth.api(config)
         return response.ok(user.serialize(user_tuple))
     end
 
-    function api.update_current_geo(user_id, coords, coords_cube, country_name, country_iso_code, city_name, city_geoname_id)
+    function api.set_registration_geo(user_id, coords, coords_cube, country_name, country_iso_code, city_name, city_geoname_id)
+      if not validator.not_empty_string(user_id) then
+          return response.error(error.INVALID_PARAMS)
+      end
+
+      local user_tuple = user.get_by_id(user_id)
+      if user_tuple == nil then
+          return response.error(error.USER_NOT_FOUND)
+      end
+
+      if not user_tuple[user.IS_ACTIVE] then
+          return response.error(error.USER_NOT_ACTIVE)
+      end
+
+      user_tuple = user.update({
+          [user.ID] = user_id,
+          [user.REGISTRATION_COORDS] = coords or {},
+          [user.REGISTRATION_COORDS_CUBE] = coords_cube or { 0, 0, 0 },
+          [user.REGISTRATION_COUNTRY_NAME] = country_name or '',
+          [user.REGISTRATION_COUNTRY_ISO_CODE] = country_iso_code or '',
+          [user.REGISTRATION_CITY_NAME] = city_name or '',
+          [user.REGISTRATION_CITY_GEONAME_ID] = city_geoname_id or 0,
+      })
+
+      return response.ok(user.serialize(user_tuple))
+    end
+
+    function api.set_current_geo(user_id, coords, coords_cube, country_name, country_iso_code, city_name, city_geoname_id)
       if not validator.not_empty_string(user_id) then
           return response.error(error.INVALID_PARAMS)
       end
