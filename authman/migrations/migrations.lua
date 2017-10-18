@@ -9,7 +9,7 @@ return function(config)
         box.once('20170726_authman_add_registration_and_session_ts', function ()
             local counter = 0
             local now = utils.now()
-            for _, tuple in user.get_space():pairs(nil, {iterator=box.index.ALL}) do
+            for _, tuple in user.get_space().index.primary:pairs(nil, {iterator=box.index.ALL}) do
                 local user_tuple = tuple:totable()
                 user_tuple[user.REGISTRATION_TS] = now
                 user_tuple[user.SESSION_UPDATE_TS] = now

@@ -105,7 +105,7 @@ function db.configurate(config)
         socket_space:create_index(socket.USER_ID_INDEX, {
             type = 'tree',
             unique = true,
-            parts = {social.USER_ID, 'string'},
+            parts = {socket.USER_ID, 'string'},
             if_not_exists = true
         })
     end

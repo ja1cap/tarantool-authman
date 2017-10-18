@@ -51,6 +51,7 @@ function socket.model(config)
       return socket_tuple ~= nil
   end
 
+  return model
 end
 
 return socket
