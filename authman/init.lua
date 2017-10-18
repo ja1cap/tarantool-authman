@@ -171,6 +171,34 @@ function auth.api(config)
         return response.ok(user.serialize(user_tuple))
     end
 
+    function api.update_current_geo(user_id, coords, coords_cube, country_name, country_iso_code, city_name, city_geoname_id)
+      if not validator.not_empty_string(user_id) then
+          return response.error(error.INVALID_PARAMS)
+      end
+
+      local user_tuple = user.get_by_id(user_id)
+      if user_tuple == nil then
+          return response.error(error.USER_NOT_FOUND)
+      end
+
+      if not user_tuple[user.IS_ACTIVE] then
+          return response.error(error.USER_NOT_ACTIVE)
+      end
+
+      user_tuple = user.update({
+          [user.ID] = user_id,
+          [user.CURRENT_COORDS] = coords or {},
+          [user.CURRENT_COORDS_CUBE] = coords_cube or { 0, 0, 0 },
+          [user.CURRENT_COORDS_TS] = utils.now(),
+          [user.CURRENT_COUNTRY_NAME] = country_name or '',
+          [user.CURRENT_COUNTRY_ISO_CODE] = country_iso_code or '',
+          [user.CURRENT_CITY_NAME] = city_name or '',
+          [user.CURRENT_CITY_GEONAME_ID] = city_geoname_id or 0,
+      })
+
+      return response.ok(user.serialize(user_tuple))
+    end
+
     function api.auth(external_identity, raw_password)
         external_identity = utils.lower(external_identity)
 

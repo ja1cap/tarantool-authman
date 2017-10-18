@@ -44,10 +44,11 @@ function user.model(config)
 
     model.CURRENT_COORDS = 19
     model.CURRENT_COORDS_CUBE = 20
-    model.CURRENT_COUNTRY_NAME = 21
-    model.CURRENT_COUNTRY_ISO_CODE = 22
-    model.CURRENT_CITY_NAME = 23
-    model.CURRENT_CITY_GEONAME_ID = 24
+    model.CURRENT_COORDS_TS = 21
+    model.CURRENT_COUNTRY_NAME = 22
+    model.CURRENT_COUNTRY_ISO_CODE = 23
+    model.CURRENT_CITY_NAME = 24
+    model.CURRENT_CITY_GEONAME_ID = 25
 
     model.PROFILE_FIRST_NAME = 'first_name'
     model.PROFILE_LAST_NAME = 'last_name'
@@ -78,6 +79,7 @@ function user.model(config)
             registraction_ts = user_tuple[model.REGISTRATION_TS],
             geo = {
                 current = {
+                    ts = user_tuple[model.CURRENT_COORDS_TS],
                     coords = user_tuple[model.CURRENT_COORDS],
                     coords_cube = user_tuple[model.CURRENT_COORDS_CUBE],
                     country_name = user_tuple[model.CURRENT_COUNTRY_NAME],
@@ -160,6 +162,7 @@ function user.model(config)
         local country_iso_code = user_tuple[model.REGISTRATION_COUNTRY_ISO_CODE] or ''
         local city_name = user_tuple[model.REGISTRATION_CITY_NAME] or ''
         local city_geoname_id = user_tuple[model.REGISTRATION_CITY_GEONAME_ID] or 0
+        user_tuple[model.CURRENT_COORDS_TS] = utils.now()
 
         return model.get_space():insert{
             user_id,
@@ -185,6 +188,7 @@ function user.model(config)
             -- CURRENT GEO
             coords,
             coords_cube,
+            user_tuple[model.CURRENT_COORDS_TS],
             country_name,
             country_iso_code,
             city_name,
