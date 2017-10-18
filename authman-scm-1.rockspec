@@ -21,6 +21,7 @@ build = {
         ['authman.model.password_token']  = 'authman/model/password_token.lua',
         ['authman.model.session']         = 'authman/model/session.lua',
         ['authman.model.social']          = 'authman/model/social.lua',
+        ['authman.model.socket']          = 'authman/model/socket.lua',
         ['authman.model.user']            = 'authman/model/user.lua',
         ['authman.utils.http']            = 'authman/utils/http.lua',
         ['authman.utils.utils']           = 'authman/utils/utils.lua',
