@@ -15,6 +15,11 @@ function social.model(config)
 
     model.SPACE_NAME = config.spaces.social.name
 
+    local shard
+    if config.shard ~= nil then
+      shard = require('shard')
+    end
+
     model.PRIMARY_INDEX = 'primary'
     model.USER_ID_INDEX = 'user'
     model.SOCIAL_INDEX = 'social'
@@ -28,7 +33,7 @@ function social.model(config)
     model.ALLOWED_PROVIDERS = {'facebook', 'vk', 'google'}
 
     function model.get_space()
-        return box.space[model.SPACE_NAME]
+        return shard and shard[model.SPACE_NAME] or box.space[model.SPACE_NAME]
     end
 
     function model.serialize(social_tuple)

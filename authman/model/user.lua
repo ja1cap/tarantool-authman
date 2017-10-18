@@ -12,6 +12,11 @@ function user.model(config)
     local model = {}
     model.SPACE_NAME = config.spaces.user.name
 
+    local shard
+    if config.shard ~= nil then
+      shard = require('shard')
+    end
+
     model.PRIMARY_INDEX = 'primary'
     model.EMAIL_INDEX = 'email_index'
     model.PHONE_INDEX = 'phone_index'
@@ -29,12 +34,20 @@ function user.model(config)
     model.BIRTH_YEAR = 10
     model.BIRTH_MONTH = 11
     model.BIRTH_DAY = 12
-    model.GEO_COUNTRY_NAME = 13
-    model.GEO_COUNTRY_ISO_CODE = 14
-    model.GEO_CITY_NAME = 15
-    model.GEO_CITY_GEONAME_ID = 16
-    model.GEO_COORDS = 17
-    model.GEO_COORDS_CUBE = 18
+
+    model.REGISTRATION_COORDS = 13
+    model.REGISTRATION_COORDS_CUBE = 14
+    model.REGISTRATION_COUNTRY_NAME = 15
+    model.REGISTRATION_COUNTRY_ISO_CODE = 16
+    model.REGISTRATION_CITY_NAME = 17
+    model.REGISTRATION_CITY_GEONAME_ID = 18
+
+    model.CURRENT_COORDS = 19
+    model.CURRENT_COORDS_CUBE = 20
+    model.CURRENT_COUNTRY_NAME = 21
+    model.CURRENT_COUNTRY_ISO_CODE = 22
+    model.CURRENT_CITY_NAME = 23
+    model.CURRENT_CITY_GEONAME_ID = 24
 
     model.PROFILE_FIRST_NAME = 'first_name'
     model.PROFILE_LAST_NAME = 'last_name'
@@ -47,7 +60,7 @@ function user.model(config)
     model.FEMALE_GENDER = 1
 
     function model.get_space()
-        return box.space[model.SPACE_NAME]
+        return shard and shard[model.SPACE_NAME] or box.space[model.SPACE_NAME]
     end
 
     function model.serialize(user_tuple, data)
@@ -63,12 +76,22 @@ function user.model(config)
             birth_month = user_tuple[model.BIRTH_MONTH],
             birth_day = user_tuple[model.BIRTH_DAY],
             geo = {
-                country_name = user_tuple[model.GEO_COUNTRY_NAME],
-                country_iso_code = user_tuple[model.GEO_COUNTRY_ISO_CODE],
-                city_name = user_tuple[model.GEO_CITY_NAME],
-                city_geoname_id = user_tuple[model.GEO_CITY_GEONAME_ID],
-                coords = user_tuple[model.GEO_COORDS],
-                coords_cube = user_tuple[model.GEO_COORDS_CUBE],
+                current = {
+                    coords = user_tuple[model.CURRENT_COORDS],
+                    coords_cube = user_tuple[model.CURRENT_COORDS_CUBE],
+                    country_name = user_tuple[model.CURRENT_COUNTRY_NAME],
+                    country_iso_code = user_tuple[model.CURRENT_COUNTRY_ISO_CODE],
+                    city_name = user_tuple[model.CURRENT_CITY_NAME],
+                    city_geoname_id = user_tuple[model.CURRENT_CITY_GEONAME_ID],
+                },
+                registration = {
+                    coords = user_tuple[model.REGISTRATION_COORDS],
+                    coords_cube = user_tuple[model.REGISTRATION_COORDS_CUBE],
+                    country_name = user_tuple[model.REGISTRATION_COUNTRY_NAME],
+                    country_iso_code = user_tuple[model.REGISTRATION_COUNTRY_ISO_CODE],
+                    city_name = user_tuple[model.REGISTRATION_CITY_NAME],
+                    city_geoname_id = user_tuple[model.REGISTRATION_CITY_GEONAME_ID],
+                },
             },
         }
         if data ~= nil then
@@ -126,8 +149,17 @@ function user.model(config)
         else
             user_id = uuid.str()
         end
+
         local email = validator.string(user_tuple[model.EMAIL]) and user_tuple[model.EMAIL] or ''
         local phone = validator.positive_number(user_tuple[model.PHONE]) and user_tuple[model.PHONE] or 0
+
+        local coords = user_tuple[model.REGISTRATION_COORDS] or {}
+        local coords_cube = user_tuple[model.REGISTRATION_COORDS_CUBE] or { 0, 0, 0 }
+        local country_name = user_tuple[model.REGISTRATION_COUNTRY_NAME] or ''
+        local country_iso_code = user_tuple[model.REGISTRATION_COUNTRY_ISO_CODE] or ''
+        local city_name = user_tuple[model.REGISTRATION_CITY_NAME] or ''
+        local city_geoname_id = user_tuple[model.REGISTRATION_CITY_GEONAME_ID] or 0
+
         return model.get_space():insert{
             user_id,
             email,
@@ -138,15 +170,24 @@ function user.model(config)
             user_tuple[model.REGISTRATION_TS],
             user_tuple[model.SESSION_UPDATE_TS],
             user_tuple[model.GENDER] or model.UNDEFINED_GENDER,
+            -- BIRTHDAY
             user_tuple[model.BIRTH_YEAR] or 0,
             user_tuple[model.BIRTH_MONTH] or 0,
             user_tuple[model.BIRTH_DAY] or 0,
-            user_tuple[model.GEO_COUNTRY_NAME] or '',
-            user_tuple[model.GEO_COUNTRY_ISO_CODE] or '',
-            user_tuple[model.GEO_CITY_NAME] or '',
-            user_tuple[model.GEO_CITY_GEONAME_ID] or 0,
-            user_tuple[model.GEO_COORDS] or {},
-            user_tuple[model.GEO_COORDS_CUBE] or { 0, 0, 0 },
+            -- REGISTRATION GEO
+            coords,
+            coords_cube,
+            country_name,
+            country_iso_code,
+            city_name,
+            city_geoname_id,
+            -- CURRENT GEO
+            coords,
+            coords_cube,
+            country_name,
+            country_iso_code,
+            city_name,
+            city_geoname_id,
         }
     end
 

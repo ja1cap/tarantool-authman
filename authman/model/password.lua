@@ -51,6 +51,11 @@ function password.model(config)
 
     model.SPACE_NAME = config.spaces.password.name
 
+    local shard
+    if config.shard ~= nil then
+      shard = require('shard')
+    end
+
     model.PRIMARY_INDEX = 'primary'
     model.USER_ID_INDEX = 'user'
 
@@ -59,7 +64,7 @@ function password.model(config)
     model.HASH = 3
 
     function model.get_space()
-        return box.space[model.SPACE_NAME]
+        return shard and shard[model.SPACE_NAME] or box.space[model.SPACE_NAME]
     end
 
     function model.get_by_id(id)

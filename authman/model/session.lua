@@ -13,6 +13,11 @@ function session.model(config)
 
     model.SPACE_NAME = config.spaces.session.name
 
+    local shard
+    if config.shard ~= nil then
+      shard = require('shard')
+    end
+
     model.PRIMARY_INDEX = 'primary'
 
     model.ID = 1
@@ -24,7 +29,7 @@ function session.model(config)
     model.COMMON_SESSION_TYPE = 'common'
 
     function model.get_space()
-        return box.space[model.SPACE_NAME]
+        return shard and shard[model.SPACE_NAME] or box.space[model.SPACE_NAME]
     end
 
     function model.generate(user_id, credential_id)

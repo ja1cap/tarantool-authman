@@ -34,7 +34,7 @@ function db.configurate(config)
         user_space:create_index(user.GEO_INDEX, {
             type = 'rtree',
             unique = false,
-            parts = {user.GEO_COORDS_CUBE, 'array'},
+            parts = {user.CURRENT_COORDS_CUBE, 'array'},
             dimension = 3,
             if_not_exists = true
         })
