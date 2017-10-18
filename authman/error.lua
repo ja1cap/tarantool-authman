@@ -32,8 +32,8 @@ error.CODES = {
     [error.IMPROPERLY_CONFIGURED] = 'Wrong config passed',
     [error.WRONG_PROVIDER] = 'Wrong social provider',
     [error.WEAK_PASSWORD] = 'Password to weak',
-    [error.SOCIAL_AUTH_ERROR] = 'Error during getting user info'
-    [error.SOCKET_NOT_FOUND] = 'Socket not found'
+    [error.SOCIAL_AUTH_ERROR] = 'Error during getting user info',
+    [error.SOCKET_NOT_FOUND] = 'Socket not found',
 }
 
 return error
