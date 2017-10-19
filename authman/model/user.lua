@@ -4,6 +4,7 @@ local digest = require('digest')
 local uuid = require('uuid')
 local validator =  require('authman.validator')
 local utils = require('authman.utils.utils')
+local geo_utils = require('authman.utils.geo')
 
 -----
 -- user (uuid, email, type, is_active, profile)
@@ -20,7 +21,7 @@ function user.model(config)
     model.PRIMARY_INDEX = 'primary'
     model.EMAIL_INDEX = 'email_index'
     model.PHONE_INDEX = 'phone_index'
-    model.GEO_INDEX = 'geo_index'
+    model.SPATIAL_INDEX = 'spatial_index'
 
     model.ID = 1
     model.EMAIL = 2
@@ -64,6 +65,16 @@ function user.model(config)
         return shard and shard[model.SPACE_NAME] or box.space[model.SPACE_NAME]
     end
 
+    function model.get_age(user_tuple)
+      local birthday_ts = os.time{
+        year = user_tuple[model.BIRTH_YEAR],
+        month = user_tuple[model.BIRTH_MONTH],
+        day = user_tuple[model.BIRTH_DAY],
+      }
+       -- 31557600 seconds = 1 year = 365.25 days
+      return math.floor((utils.now() - birthday_ts) / 31557600)
+    end
+
     function model.serialize(user_tuple, data)
 
         local user_profile = user_tuple[model.PROFILE]
@@ -71,6 +82,7 @@ function user.model(config)
         user_profile.birth_year = user_tuple[model.BIRTH_YEAR]
         user_profile.birth_month = user_tuple[model.BIRTH_MONTH]
         user_profile.birth_day = user_tuple[model.BIRTH_DAY]
+        user_profile.age = model.get_age(user_tuple)
 
         local user_data = {
             id = user_tuple[model.ID],
@@ -136,6 +148,61 @@ function user.model(config)
         if user_tuple ~= nil then
             return user_tuple[model.ID]
         end
+    end
+
+    function model.filter_tuple(user_tuple, gender, age)
+      if gender ~= nil and user_tuple[model.GENDER] ~= gender then
+        return false
+      end
+
+      if age ~= nil then
+        local user_age = model.get_age(user_tuple)
+        if type(age) == 'table' and ( user_age < age[1] or user_age > age[2] ) then
+          return false
+        elseif user_age ~= age then
+          return false
+        end
+      end
+
+      return user_tuple
+    end
+
+    function model.nearby(lat, lng, gender, age, limit, offset)
+
+      local point = geo_utils.coords_to_cude({ lng, lat })
+
+      limit = limit or 10
+      offset = offset or 0
+      if gender ~= nil then
+        gender = tonumber(gender)
+      end
+      if age ~= nil then
+        if type(age) == 'table' then
+          age[1] = tonumber(age[1])
+          age[2] = tonumber(age[2])
+        else
+          age = tonumber(age)
+        end
+      end
+
+      local results = {}
+      local skip_count = 0
+
+      local tuples_iter = model.get_space().index[model.SPATIAL_INDEX]:pairs(point:totable(),
+          { iterator = 'neighbor' })
+      for _, user_tuple in tuples_iter do
+        if model.filter_tuple(user_tuple) then
+          if offset == 0 or skip_count > offset then
+            local user_data = model.serialize(user_tuple)
+            user_data.distance = math.ceil(point:distance(geo_utils.coords_to_cude(user_tuple[model.CURRENT_COORDS])))
+            results[#results + 1] = user_data
+          else
+            skip_count = skip_count + 1
+          end
+        end
+      end
+
+      return true, results
     end
 
     function model.delete(user_id)

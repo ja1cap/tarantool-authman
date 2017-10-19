@@ -32,7 +32,7 @@ function db.configurate(config)
             parts = {user.PHONE, 'unsigned', user.TYPE, 'unsigned'},
             if_not_exists = true
         })
-        user_space:create_index(user.GEO_INDEX, {
+        user_space:create_index(user.SPATIAL_INDEX, {
             type = 'rtree',
             unique = false,
             parts = {user.CURRENT_COORDS_CUBE, 'array'},
