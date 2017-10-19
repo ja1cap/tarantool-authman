@@ -72,6 +72,9 @@ function user.model(config)
     function model.serialize(user_tuple, data)
 
         local user_profile = user_tuple[model.PROFILE]
+        if type(user_profile) ~= 'table' then
+            user_profile = {}
+        end
         user_profile.gender = user_tuple[model.GENDER]
         user_profile.birth_year = user_tuple[model.BIRTH_YEAR]
         user_profile.birth_month = user_tuple[model.BIRTH_MONTH]
@@ -195,7 +198,7 @@ function user.model(config)
             phone,
             user_tuple[model.TYPE],
             user_tuple[model.IS_ACTIVE],
-            user_tuple[model.PROFILE],
+            user_tuple[model.PROFILE] or {},
             user_tuple[model.REGISTRATION_TS],
             user_tuple[model.SESSION_UPDATE_TS],
             user_tuple[model.GENDER] or model.UNDEFINED_GENDER,
