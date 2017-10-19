@@ -6,11 +6,6 @@ function socket.model(config)
 
   model.SPACE_NAME = config.spaces.socket.name
 
-  local shard
-  if config.shard ~= nil then
-    shard = require('shard')
-  end
-
   model.PRIMARY_INDEX = 'primary'
   model.USER_ID_INDEX = 'user'
 
@@ -19,7 +14,7 @@ function socket.model(config)
   model.CREATION_TS = 3
 
   function model.get_space()
-    return shard and shard[model.SPACE_NAME] or box.space[model.SPACE_NAME]
+    return box.space[model.SPACE_NAME]
   end
 
   function model.serialize(socket_tuple)

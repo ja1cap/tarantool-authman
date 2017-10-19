@@ -11,18 +11,13 @@ function password_token.model(config)
 
     model.SPACE_NAME = config.spaces.password_token.name
 
-    local shard
-    if config.shard ~= nil then
-      shard = require('shard')
-    end
-
     model.PRIMARY_INDEX = 'primary'
 
     model.USER_ID = 1
     model.CODE = 2
 
     function model.get_space()
-        return shard and shard[model.SPACE_NAME] or box.space[model.SPACE_NAME]
+        return box.space[model.SPACE_NAME]
     end
 
     function model.get_by_user_id(user_id)

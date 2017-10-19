@@ -12,11 +12,6 @@ function user.model(config)
     local model = {}
     model.SPACE_NAME = config.spaces.user.name
 
-    local shard
-    if config.shard ~= nil then
-      shard = require('shard')
-    end
-
     model.PRIMARY_INDEX = 'primary'
     model.EMAIL_INDEX = 'email_index'
     model.PHONE_INDEX = 'phone_index'
@@ -61,7 +56,7 @@ function user.model(config)
     model.FEMALE_GENDER = 1
 
     function model.get_space()
-        return shard and shard[model.SPACE_NAME] or box.space[model.SPACE_NAME]
+        return box.space[model.SPACE_NAME]
     end
 
     function model.get_age(user_tuple)
