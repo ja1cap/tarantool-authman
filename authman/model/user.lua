@@ -4,7 +4,6 @@ local digest = require('digest')
 local uuid = require('uuid')
 local validator =  require('authman.validator')
 local utils = require('authman.utils.utils')
-local geo_utils = require('authman.utils.geo')
 
 -----
 -- user (uuid, email, type, is_active, profile)
@@ -165,44 +164,6 @@ function user.model(config)
       end
 
       return user_tuple
-    end
-
-    function model.nearby(lat, lng, gender, age, limit, offset)
-
-      local point = geo_utils.coords_to_cude({ lng, lat })
-
-      limit = limit or 10
-      offset = offset or 0
-      if gender ~= nil then
-        gender = tonumber(gender)
-      end
-      if age ~= nil then
-        if type(age) == 'table' then
-          age[1] = tonumber(age[1])
-          age[2] = tonumber(age[2])
-        else
-          age = tonumber(age)
-        end
-      end
-
-      local results = {}
-      local skip_count = 0
-
-      local tuples_iter = model.get_space().index[model.SPATIAL_INDEX]:pairs(point:totable(),
-          { iterator = 'neighbor' })
-      for _, user_tuple in tuples_iter do
-        if model.filter_tuple(user_tuple) then
-          if offset == 0 or skip_count > offset then
-            local user_data = model.serialize(user_tuple)
-            user_data.distance = math.ceil(point:distance(geo_utils.coords_to_cude(user_tuple[model.CURRENT_COORDS])))
-            results[#results + 1] = user_data
-          else
-            skip_count = skip_count + 1
-          end
-        end
-      end
-
-      return true, results
     end
 
     function model.delete(user_id)

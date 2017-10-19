@@ -23,6 +23,7 @@ build = {
         ['authman.model.social']          = 'authman/model/social.lua',
         ['authman.model.socket']          = 'authman/model/socket.lua',
         ['authman.model.user']            = 'authman/model/user.lua',
+        ['authman.utils.geo']             = 'authman/utils/geo.lua',
         ['authman.utils.http']            = 'authman/utils/http.lua',
         ['authman.utils.utils']           = 'authman/utils/utils.lua',
         ['authman.validator']             = 'authman/validator.lua',
