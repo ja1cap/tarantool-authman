@@ -53,7 +53,7 @@ function user.model(config)
 
     model.UNDEFINED_GENDER = 0
     model.MALE_GENDER = 1
-    model.FEMALE_GENDER = 1
+    model.FEMALE_GENDER = 2
 
     function model.get_space()
         return box.space[model.SPACE_NAME]
