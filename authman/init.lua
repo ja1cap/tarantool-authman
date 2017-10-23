@@ -252,9 +252,7 @@ function auth.api(config)
       local results = {}
       local skip_count = 0
 
-      local tuples_iter = user.get_space().index[user.SPATIAL_INDEX]:pairs(point:totable(),
-          { iterator = 'neighbor' })
-      for _, user_tuple in tuples_iter do
+      for _, user_tuple in user.get_space().index[user.SPATIAL_INDEX]:pairs(point:totable(), { iterator = 'neighbor' }) do
         if user.filter_tuple(user_tuple) then
           if offset == 0 or skip_count > offset then
             local user_data = user.serialize(user_tuple)
