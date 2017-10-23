@@ -26,7 +26,7 @@ function socket.model(config)
   end
 
   function model.create(socket_id, user_id, creation_ts)
-    return model.get_space():insert{
+    return model.get_space():put{
       socket_id,
       user_id,
       creation_ts or os.time(),

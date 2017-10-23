@@ -192,7 +192,7 @@ function user.model(config)
         local city_geoname_id = user_tuple[model.REGISTRATION_CITY_GEONAME_ID] or 0
         user_tuple[model.CURRENT_COORDS_TS] = utils.now()
 
-        return model.get_space():insert{
+        return model.get_space():put{
             user_id,
             email,
             phone,
@@ -243,7 +243,7 @@ function user.model(config)
     end
 
     function model.set_new_id(user_id, new_user_id)
-        local user_tuple = model.get_by_id(user_id)
+        model.get_by_id(user_id)
         model.delete(user_id)
 
         model.create_or_update()

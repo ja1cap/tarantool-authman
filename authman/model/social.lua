@@ -66,7 +66,7 @@ function social.model(config)
 
     function model.create(social_tuple)
         local id = uuid.str()
-        return model.get_space():insert({
+        return model.get_space():put({
             id,
             social_tuple[model.USER_ID],
             social_tuple[model.PROVIDER],

@@ -30,7 +30,7 @@ function session.model(config)
     function model.generate(user_id, credential_id)
         local code = uuid.str()
         local session_id = uuid.str()
-        return model.get_space():insert({session_id, code, user_id, credential_id})
+        return model.get_space():put({session_id, code, user_id, credential_id})
     end
 
     function model.get_by_id(session_id)

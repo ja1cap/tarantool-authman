@@ -94,7 +94,7 @@ function password.model(config)
 
     function model.create(password_tuple)
         local id = uuid.str()
-        return model.get_space():insert({
+        return model.get_space():put({
             id,
             password_tuple[model.USER_ID],
             password_tuple[model.HASH],
