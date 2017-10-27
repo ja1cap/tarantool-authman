@@ -4,7 +4,6 @@ local error = require('authman.error')
 local validator = require('authman.validator')
 local db = require('authman.db')
 local utils = require('authman.utils.utils')
-local geo_utils = require('authman.utils.geo')
 local fun = require('fun')
 
 function auth.api(config)
@@ -176,7 +175,7 @@ function auth.api(config)
         return response.ok(user.serialize(user_tuple))
     end
 
-    function api.set_registration_geo(user_id, coords, coords_cube, country_name, country_iso_code, city_name, city_geoname_id)
+    function api.set_registration_geo(user_id, longitude, latitude, country_name, country_iso_code, city_name, city_geoname_id)
       if not validator.not_empty_string(user_id) then
           return response.error(error.INVALID_PARAMS)
       end
@@ -192,18 +191,18 @@ function auth.api(config)
 
       user_tuple = user.update({
           [user.ID] = user_id,
-          [user.REGISTRATION_COORDS] = coords or {},
-          [user.REGISTRATION_COORDS_CUBE] = coords_cube or { 0, 0, 0 },
-          [user.REGISTRATION_COUNTRY_NAME] = country_name or '',
-          [user.REGISTRATION_COUNTRY_ISO_CODE] = country_iso_code or '',
-          [user.REGISTRATION_CITY_NAME] = city_name or '',
-          [user.REGISTRATION_CITY_GEONAME_ID] = city_geoname_id or 0,
+          [user.GEO_REGISTRATION_LONGITUDE] = longitude or 0,
+          [user.GEO_REGISTRATION_LATITUDE] = latitude or 0,
+          [user.GEO_REGISTRATION_COUNTRY_NAME] = country_name or '',
+          [user.GEO_REGISTRATION_COUNTRY_ISO_CODE] = country_iso_code or '',
+          [user.GEO_REGISTRATION_CITY_NAME] = city_name or '',
+          [user.GEO_REGISTRATION_CITY_GEONAME_ID] = city_geoname_id or 0,
       })
 
       return response.ok(user.serialize(user_tuple))
     end
 
-    function api.set_current_geo(user_id, coords, coords_cube, country_name, country_iso_code, city_name, city_geoname_id)
+    function api.set_current_geo(user_id, longitude, latitude, country_name, country_iso_code, city_name, city_geoname_id)
       if not validator.not_empty_string(user_id) then
           return response.error(error.INVALID_PARAMS)
       end
@@ -219,52 +218,16 @@ function auth.api(config)
 
       user_tuple = user.update({
           [user.ID] = user_id,
-          [user.CURRENT_COORDS] = coords or {},
-          [user.CURRENT_COORDS_CUBE] = coords_cube or { 0, 0, 0 },
-          [user.CURRENT_COORDS_TS] = utils.now(),
-          [user.CURRENT_COUNTRY_NAME] = country_name or '',
-          [user.CURRENT_COUNTRY_ISO_CODE] = country_iso_code or '',
-          [user.CURRENT_CITY_NAME] = city_name or '',
-          [user.CURRENT_CITY_GEONAME_ID] = city_geoname_id or 0,
+          [user.GEO_CURRENT_LONGITUDE] = longitude or 0,
+          [user.GEO_CURRENT_LATITUDE] = latitude or 0,
+          [user.GEO_CURRENT_COORDS_TS] = utils.now(),
+          [user.GEO_CURRENT_COUNTRY_NAME] = country_name or '',
+          [user.GEO_CURRENT_COUNTRY_ISO_CODE] = country_iso_code or '',
+          [user.GEO_CURRENT_CITY_NAME] = city_name or '',
+          [user.GEO_CURRENT_CITY_GEONAME_ID] = city_geoname_id or 0,
       })
 
       return response.ok(user.serialize(user_tuple))
-    end
-
-    function api.nearby(lat, lng, gender, age, limit, offset)
-
-      local point = geo_utils.coords_to_cude({ lng, lat })
-
-      limit = limit or 10
-      offset = offset or 0
-      if gender ~= nil then
-        gender = tonumber(gender)
-      end
-      if age ~= nil then
-        if type(age) == 'table' then
-          age[1] = tonumber(age[1])
-          age[2] = tonumber(age[2])
-        else
-          age = tonumber(age)
-        end
-      end
-
-      local results = {}
-      local skip_count = 0
-
-      for _, user_tuple in user.get_space().index[user.SPATIAL_INDEX]:pairs(point:totable(), { iterator = 'neighbor' }) do
-        if user.filter_tuple(user_tuple) then
-          if offset == 0 or skip_count > offset then
-            local user_data = user.serialize(user_tuple)
-            user_data.distance = math.ceil(point:distance(geo_utils.coords_to_cude(user_tuple[user.CURRENT_COORDS])))
-            results[#results + 1] = user_data
-          else
-            skip_count = skip_count + 1
-          end
-        end
-      end
-
-      return true, results
     end
 
     function api.auth(external_identity, raw_password)

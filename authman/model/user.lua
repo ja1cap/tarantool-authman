@@ -15,7 +15,6 @@ function user.model(config)
     model.PRIMARY_INDEX = 'primary'
     model.EMAIL_INDEX = 'email_index'
     model.PHONE_INDEX = 'phone_index'
-    model.SPATIAL_INDEX = 'spatial_index'
 
     model.ID = 1
     model.EMAIL = 2
@@ -30,20 +29,20 @@ function user.model(config)
     model.BIRTH_MONTH = 11
     model.BIRTH_DAY = 12
 
-    model.REGISTRATION_COORDS = 13
-    model.REGISTRATION_COORDS_CUBE = 14
-    model.REGISTRATION_COUNTRY_NAME = 15
-    model.REGISTRATION_COUNTRY_ISO_CODE = 16
-    model.REGISTRATION_CITY_NAME = 17
-    model.REGISTRATION_CITY_GEONAME_ID = 18
+    model.GEO_REGISTRATION_LONGITUDE = 13
+    model.GEO_REGISTRATION_LATITUDE = 14
+    model.GEO_REGISTRATION_COUNTRY_NAME = 15
+    model.GEO_REGISTRATION_COUNTRY_ISO_CODE = 16
+    model.GEO_REGISTRATION_CITY_NAME = 17
+    model.GEO_REGISTRATION_CITY_GEONAME_ID = 18
 
-    model.CURRENT_COORDS = 19
-    model.CURRENT_COORDS_CUBE = 20
-    model.CURRENT_COORDS_TS = 21
-    model.CURRENT_COUNTRY_NAME = 22
-    model.CURRENT_COUNTRY_ISO_CODE = 23
-    model.CURRENT_CITY_NAME = 24
-    model.CURRENT_CITY_GEONAME_ID = 25
+    model.GEO_CURRENT_LONGITUDE = 19
+    model.GEO_CURRENT_LATITUDE = 20
+    model.GEO_CURRENT_COORDS_TS = 21
+    model.GEO_CURRENT_COUNTRY_NAME = 22
+    model.GEO_CURRENT_COUNTRY_ISO_CODE = 23
+    model.GEO_CURRENT_CITY_NAME = 24
+    model.GEO_CURRENT_CITY_GEONAME_ID = 25
 
     model.PROFILE_FIRST_NAME = 'first_name'
     model.PROFILE_LAST_NAME = 'last_name'
@@ -90,21 +89,21 @@ function user.model(config)
             profile = user_profile,
             geo = {
                 current = {
-                    ts = user_tuple[model.CURRENT_COORDS_TS],
-                    coords = user_tuple[model.CURRENT_COORDS],
-                    coords_cube = user_tuple[model.CURRENT_COORDS_CUBE],
-                    country_name = user_tuple[model.CURRENT_COUNTRY_NAME],
-                    country_iso_code = user_tuple[model.CURRENT_COUNTRY_ISO_CODE],
-                    city_name = user_tuple[model.CURRENT_CITY_NAME],
-                    city_geoname_id = user_tuple[model.CURRENT_CITY_GEONAME_ID],
+                    ts = user_tuple[model.GEO_CURRENT_COORDS_TS],
+                    longitude = user_tuple[model.GEO_CURRENT_LONGITUDE],
+                    latitude = user_tuple[model.GEO_CURRENT_LATITUDE],
+                    country_name = user_tuple[model.GEO_CURRENT_COUNTRY_NAME],
+                    country_iso_code = user_tuple[model.GEO_CURRENT_COUNTRY_ISO_CODE],
+                    city_name = user_tuple[model.GEO_CURRENT_CITY_NAME],
+                    city_geoname_id = user_tuple[model.GEO_CURRENT_CITY_GEONAME_ID],
                 },
                 registration = {
-                    coords = user_tuple[model.REGISTRATION_COORDS],
-                    coords_cube = user_tuple[model.REGISTRATION_COORDS_CUBE],
-                    country_name = user_tuple[model.REGISTRATION_COUNTRY_NAME],
-                    country_iso_code = user_tuple[model.REGISTRATION_COUNTRY_ISO_CODE],
-                    city_name = user_tuple[model.REGISTRATION_CITY_NAME],
-                    city_geoname_id = user_tuple[model.REGISTRATION_CITY_GEONAME_ID],
+                    longitude = user_tuple[model.GEO_REGISTRATION_LONGITUDE],
+                    latitude = user_tuple[model.GEO_REGISTRATION_LATITUDE],
+                    country_name = user_tuple[model.GEO_REGISTRATION_COUNTRY_NAME],
+                    country_iso_code = user_tuple[model.GEO_REGISTRATION_COUNTRY_ISO_CODE],
+                    city_name = user_tuple[model.GEO_REGISTRATION_CITY_NAME],
+                    city_geoname_id = user_tuple[model.GEO_REGISTRATION_CITY_GEONAME_ID],
                 },
             },
         }
@@ -184,13 +183,13 @@ function user.model(config)
         local email = validator.string(user_tuple[model.EMAIL]) and user_tuple[model.EMAIL] or ''
         local phone = validator.positive_number(user_tuple[model.PHONE]) and user_tuple[model.PHONE] or 0
 
-        local coords = user_tuple[model.REGISTRATION_COORDS] or {}
-        local coords_cube = user_tuple[model.REGISTRATION_COORDS_CUBE] or { 0, 0, 0 }
-        local country_name = user_tuple[model.REGISTRATION_COUNTRY_NAME] or ''
-        local country_iso_code = user_tuple[model.REGISTRATION_COUNTRY_ISO_CODE] or ''
-        local city_name = user_tuple[model.REGISTRATION_CITY_NAME] or ''
-        local city_geoname_id = user_tuple[model.REGISTRATION_CITY_GEONAME_ID] or 0
-        user_tuple[model.CURRENT_COORDS_TS] = utils.now()
+        local longitude = user_tuple[model.GEO_REGISTRATION_LONGITUDE] or 0
+        local latitude = user_tuple[model.GEO_REGISTRATION_LATITUDE] or 0
+        local country_name = user_tuple[model.GEO_REGISTRATION_COUNTRY_NAME] or ''
+        local country_iso_code = user_tuple[model.GEO_REGISTRATION_COUNTRY_ISO_CODE] or ''
+        local city_name = user_tuple[model.GEO_REGISTRATION_CITY_NAME] or ''
+        local city_geoname_id = user_tuple[model.GEO_REGISTRATION_CITY_GEONAME_ID] or 0
+        user_tuple[model.GEO_CURRENT_COORDS_TS] = utils.now()
 
         return model.get_space():put{
             user_id,
@@ -207,16 +206,16 @@ function user.model(config)
             user_tuple[model.BIRTH_MONTH] or 0,
             user_tuple[model.BIRTH_DAY] or 0,
             -- REGISTRATION GEO
-            coords,
-            coords_cube,
+            longitude,
+            latitude,
             country_name,
             country_iso_code,
             city_name,
             city_geoname_id,
             -- CURRENT GEO
-            coords,
-            coords_cube,
-            user_tuple[model.CURRENT_COORDS_TS],
+            longitude,
+            latitude,
+            user_tuple[model.GEO_CURRENT_COORDS_TS],
             country_name,
             country_iso_code,
             city_name,
